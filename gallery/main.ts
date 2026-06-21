@@ -1,138 +1,126 @@
-import { CanvasRenderer, Player } from "../src/canvas/index";
-import * as ML from "../src/core/index";
 import { DEMOS, type Demo } from "./demos";
 
-// Each demo card compiles its source the same way TeachBoard / the studio do
-// (new Function + injected API), renders it into its own canvas, and loops.
-// Cards only animate while on-screen (IntersectionObserver) to stay light.
+// Each sample is presented as a COMPLETE, copy-pasteable HTML file in an editor
+// on the left, rendered live in a sandboxed <iframe> on the right. The file
+// loads the published package from a CDN, so what you see is exactly what a
+// user gets if they save the file and open it in any browser.
 
-const W = 560;
-const H = 360;
+const CDN = "https://esm.sh/@agarwal29796/manim-js@0.1.0";
 
-const API_NAMES = [
-  "Scene",
-  "circle",
-  "square",
-  "rect",
-  "polygon",
-  "line",
-  "functionGraph",
-  "numberLine",
-  "text",
-  "create",
-  "write",
-  "fadeIn",
-  "fadeOut",
-  "transform",
-  "shift",
-  "scaleBy",
-  "rotate",
-  "indicate",
-  "linear",
-  "easeInOut",
-  "easeOut",
-  "easeIn",
-  "easeOutBack",
-  "smooth",
-  "thereAndBack",
-] as const;
+function fullHtml(demo: Demo): string {
+  const scene = demo.code.replace(/\n/g, "\n      "); // indent inside build()
+  return [
+    "<!doctype html>",
+    '<html lang="en">',
+    "<head>",
+    '  <meta charset="utf-8" />',
+    `  <title>${demo.title} — Manim.js</title>`,
+    "  <style>",
+    "    html, body { margin: 0; height: 100%; background: #FBFAF6; }",
+    "    canvas { display: block; width: 100%; height: 100%; }",
+    "  </style>",
+    "</head>",
+    "<body>",
+    '  <canvas id="scene"></canvas>',
+    '  <script type="module">',
+    "    import {",
+    "      Scene, circle, square, rect, polygon, line, functionGraph, numberLine, text,",
+    "      create, write, fadeIn, fadeOut, transform, shift, scaleBy, rotate, indicate,",
+    "      linear, easeInOut, easeOut, easeIn, easeOutBack, smooth, thereAndBack,",
+    `    } from "${CDN}";`,
+    `    import { CanvasRenderer, Player } from "${CDN}/canvas";`,
+    "",
+    "    const W = 960, H = 600;",
+    '    const canvas = document.getElementById("scene");',
+    "    canvas.width = W; canvas.height = H;",
+    '    const ctx = canvas.getContext("2d");',
+    "",
+    "    function build(width, height) {",
+    `      ${scene}`,
+    "    }",
+    "",
+    "    const scene = build(W, H);",
+    "    const renderer = new CanvasRenderer(ctx, { background: scene.background, centerOrigin: true });",
+    "    new Player(scene.compile(), renderer, W, H).play();",
+    "  </script>",
+    "</body>",
+    "</html>",
+    "",
+  ].join("\n");
+}
 
-function compile(src: string): { timeline?: ML.Timeline; bg?: string; error?: string } {
-  try {
-    // eslint-disable-next-line no-new-func
-    const fn = new Function(...API_NAMES, "width", "height", `"use strict";\n${src}`);
-    const args = API_NAMES.map((n) => (ML as unknown as Record<string, unknown>)[n]);
-    const scene = fn(...args, W, H) as ML.Scene | undefined;
-    if (!scene || typeof scene.compile !== "function") {
-      return { error: "Scene code must `return` a Scene." };
-    }
-    return { timeline: scene.compile(), bg: scene.background };
-  } catch (e) {
-    return { error: e instanceof Error ? `${e.name}: ${e.message}` : String(e) };
+const tabsEl = document.getElementById("tabs")!;
+const editor = document.getElementById("code") as HTMLTextAreaElement;
+const frame = document.getElementById("preview") as HTMLIFrameElement;
+const fileLabel = document.getElementById("filename")!;
+const copyBtn = document.getElementById("copy") as HTMLButtonElement;
+const openBtn = document.getElementById("open") as HTMLButtonElement;
+const resetBtn = document.getElementById("reset") as HTMLButtonElement;
+
+let current = 0;
+let blobUrl: string | null = null;
+
+function slug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function render(): void {
+  frame.srcdoc = editor.value;
+}
+
+function load(i: number): void {
+  current = i;
+  editor.value = fullHtml(DEMOS[i]);
+  fileLabel.textContent = `${slug(DEMOS[i].title)}.html`;
+  render();
+  for (const btn of tabsEl.querySelectorAll("button")) {
+    btn.classList.toggle("active", Number(btn.dataset.i) === i);
   }
 }
 
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  cls?: string,
-  text?: string
-): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  if (cls) node.className = cls;
-  if (text != null) node.textContent = text;
-  return node;
-}
+// build tabs
+DEMOS.forEach((demo, i) => {
+  const b = document.createElement("button");
+  b.textContent = demo.title;
+  b.dataset.i = String(i);
+  b.addEventListener("click", () => load(i));
+  tabsEl.appendChild(b);
+});
 
-function buildCard(demo: Demo): HTMLElement {
-  const card = el("article", "card");
+// live re-render (debounced)
+let timer = 0;
+editor.addEventListener("input", () => {
+  window.clearTimeout(timer);
+  timer = window.setTimeout(render, 400);
+});
 
-  const canvas = el("canvas", "stage");
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext("2d")!;
-  card.appendChild(canvas);
-
-  const body = el("div", "body");
-  body.appendChild(el("h2", "title", demo.title));
-  body.appendChild(el("p", "desc", demo.desc));
-
-  const actions = el("div", "actions");
-  const codeBtn = el("button", "btn", "</> Code");
-  const replayBtn = el("button", "btn ghost", "↻ Replay");
-  actions.append(codeBtn, replayBtn);
-  body.appendChild(actions);
-
-  const pre = el("pre", "code");
-  const codeEl = el("code");
-  codeEl.textContent = demo.code;
-  pre.appendChild(codeEl);
-  pre.style.display = "none";
-  body.appendChild(pre);
-
-  card.appendChild(body);
-
-  const { timeline, bg, error } = compile(demo.code);
-  if (error || !timeline) {
-    ctx.fillStyle = "#2c1d1f";
-    ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = "#fda4a4";
-    ctx.font = "16px monospace";
-    ctx.fillText(error ?? "error", 16, 28);
-    pre.style.display = "block"; // surface the broken source
-    return card;
+// Tab inserts two spaces
+editor.addEventListener("keydown", (e) => {
+  if (e.key === "Tab") {
+    e.preventDefault();
+    const s = editor.selectionStart;
+    editor.value = `${editor.value.slice(0, s)}  ${editor.value.slice(editor.selectionEnd)}`;
+    editor.selectionStart = editor.selectionEnd = s + 2;
   }
+});
 
-  const renderer = new CanvasRenderer(ctx, {
-    background: bg ?? "#FBFAF6",
-    centerOrigin: true,
-  });
-  const player = new Player(timeline, renderer, W, H);
-  player.seek(0);
+copyBtn.addEventListener("click", async () => {
+  await navigator.clipboard.writeText(editor.value);
+  copyBtn.textContent = "Copied!";
+  window.setTimeout(() => {
+    copyBtn.textContent = "Copy";
+  }, 1200);
+});
 
-  codeBtn.addEventListener("click", () => {
-    const showing = pre.style.display !== "none";
-    pre.style.display = showing ? "none" : "block";
-    codeBtn.textContent = showing ? "</> Code" : "✕ Hide";
-  });
-  replayBtn.addEventListener("click", () => {
-    player.seek(0);
-    player.play();
-  });
+openBtn.addEventListener("click", () => {
+  if (blobUrl) URL.revokeObjectURL(blobUrl);
+  blobUrl = URL.createObjectURL(new Blob([editor.value], { type: "text/html" }));
+  window.open(blobUrl, "_blank");
+});
 
-  // Only run while visible — keeps a page full of canvases cheap.
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) player.play();
-        else player.pause();
-      }
-    },
-    { threshold: 0.2 }
-  );
-  io.observe(canvas);
+resetBtn.addEventListener("click", () => load(current));
 
-  return card;
-}
-
-const grid = document.getElementById("grid")!;
-for (const demo of DEMOS) grid.appendChild(buildCard(demo));
+load(0);

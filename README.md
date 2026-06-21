@@ -7,6 +7,8 @@
 [![npm](https://img.shields.io/npm/v/@agarwal29796/manim-js.svg)](https://www.npmjs.com/package/@agarwal29796/manim-js)
 [![license](https://img.shields.io/npm/l/@agarwal29796/manim-js.svg)](./LICENSE)
 
+**🔗 [Live examples & editor →](https://agarwal29796.github.io/manim-js/)**
+
 > Independent project inspired by [Manim](https://www.manim.community/); not
 > affiliated with or endorsed by the Manim Community.
 

@@ -73,6 +73,8 @@
     "studio": "npm run studio:bundle && python3 -m http.server -d studio 8123",
     "gallery:bundle": "esbuild gallery/main.ts --bundle --format=iife --outfile=gallery/bundle.js",
     "gallery": "npm run gallery:bundle && python3 -m http.server -d gallery 8124",
+    "build:site": "npm run gallery:bundle && npm run studio:bundle && rm -rf site && mkdir -p site/studio && cp gallery/index.html gallery/bundle.js site/ && cp studio/index.html studio/bundle.js site/studio/",
+    "site": "npm run build:site && python3 -m http.server -d site 8125",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "npm run build && changeset publish",

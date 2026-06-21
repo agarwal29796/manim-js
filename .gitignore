@@ -3,4 +3,5 @@ dist/
 coverage/
 studio/bundle.js
 gallery/bundle.js
+site/
 *.tgz

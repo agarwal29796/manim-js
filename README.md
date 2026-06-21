@@ -4,8 +4,8 @@
 > Author scenes in code, compile them to a deterministic timeline, and render
 > anywhere through a tiny `Renderer` interface.
 
-[![npm](https://img.shields.io/npm/v/manim-js.svg)](https://www.npmjs.com/package/manim-js)
-[![license](https://img.shields.io/npm/l/manim-js.svg)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/@agarwal29796/manim-js.svg)](https://www.npmjs.com/package/@agarwal29796/manim-js)
+[![license](https://img.shields.io/npm/l/@agarwal29796/manim-js.svg)](./LICENSE)
 
 > Independent project inspired by [Manim](https://www.manim.community/); not
 > affiliated with or endorsed by the Manim Community.
@@ -25,14 +25,14 @@
 ## Install
 
 ```bash
-npm i manim-js
+npm i @agarwal29796/manim-js
 ```
 
 ## Quick start
 
 ```ts
-import { Scene, circle, square, text, create, write, transform } from "manim-js";
-import { CanvasRenderer, Player } from "manim-js/canvas";
+import { Scene, circle, square, text, create, write, transform } from "@agarwal29796/manim-js";
+import { CanvasRenderer, Player } from "@agarwal29796/manim-js/canvas";
 
 const s = new Scene({ width: 1280, height: 720 });
 const title = text("hello", { y: -200, size: 80 });

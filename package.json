@@ -1,5 +1,5 @@
 {
-  "name": "manim-js",
+  "name": "@agarwal29796/manim-js",
   "version": "0.1.0",
   "description": "Manim.js — a Manim-inspired, framework-agnostic animation engine for the web. Author scenes in code; render anywhere via a tiny Renderer interface.",
   "license": "Apache-2.0",

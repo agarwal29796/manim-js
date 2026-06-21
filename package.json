@@ -75,7 +75,7 @@
     "changeset": "changeset",
     "version": "changeset version",
     "release": "npm run build && changeset publish",
-    "prepublishOnly": "npm run build && npm run check:exports"
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.3",

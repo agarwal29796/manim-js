@@ -20,6 +20,6 @@
     "formatter": { "quoteStyle": "double", "trailingCommas": "es5" }
   },
   "files": {
-    "ignore": ["dist", "studio/bundle.js", "node_modules"]
+    "ignore": ["dist", "studio/bundle.js", "gallery/bundle.js", "node_modules"]
   }
 }

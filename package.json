@@ -71,6 +71,8 @@
     "check:exports": "publint --strict && attw --pack . --profile node16",
     "studio:bundle": "esbuild studio/main.ts --bundle --format=iife --outfile=studio/bundle.js",
     "studio": "npm run studio:bundle && python3 -m http.server -d studio 8123",
+    "gallery:bundle": "esbuild gallery/main.ts --bundle --format=iife --outfile=gallery/bundle.js",
+    "gallery": "npm run gallery:bundle && python3 -m http.server -d gallery 8124",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "npm run build && changeset publish",

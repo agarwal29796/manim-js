@@ -8,7 +8,7 @@ Manim.js is pre-1.0; security fixes are applied to the latest `0.x` release.
 
 Please **do not** open a public issue for security reports.
 
-Instead, email **archit@mirelz.com** with details and reproduction steps, or use
+Instead, email **archit29796@gmail.com** with details and reproduction steps, or use
 GitHub's [private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)
 on this repository.
 
